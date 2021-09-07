@@ -1,17 +1,21 @@
+mod commands;
+
 use std::{collections::HashSet, fs::File, io::BufReader, usize};
 
 use serenity::async_trait;
 use serenity::framework::standard::{
     help_commands,
-    macros::{command, group, help},
+    macros::{group, help},
     Args, CommandGroup, CommandResult, HelpOptions,
 };
 use serenity::framework::StandardFramework;
 use serenity::model::{channel::Message, gateway::Ready, id::UserId};
-use serenity::prelude::{Client, Context, EventHandler, Mentionable};
+use serenity::prelude::{Client, Context, EventHandler};
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
+
+use commands::neko::*;
 
 // Handler構造体。取得したいイベントを実装する
 struct Handler;
@@ -48,18 +52,6 @@ async fn my_help(
 #[summary("一般")]
 #[commands(neko)]
 struct General;
-
-#[command]
-#[description = "猫のように鳴く"]
-async fn neko(ctx: &Context, msg: &Message) -> CommandResult {
-    // msg.channel_id.say で、channel_id の channel にメッセージを投稿
-    msg.channel_id
-        .say(&ctx.http, format!("{} にゃーん", msg.author.mention()))
-        .await?;
-    // CommandResultはResultを継承している
-    // `Result?` は正常な値の場合、Resultの中身を返し、エラーの場合は即座にreturnする演算子
-    Ok(())
-}
 
 #[derive(Serialize, Deserialize)]
 struct Token {
