@@ -24,9 +24,10 @@ async fn all_channels(ctx: &Context, msg: &Message) -> CommandResult {
                     .say(
                         &ctx.http,
                         format!(
-                            "channel_name: {} {}\ncategory_id:   {}\nchannel_kind: {}",
+                            "channel_name: {} {}\nchannel_id: {}\ncategory_id:   {}\nchannel_kind: {}",
                             channel_name_with_sharp,
                             chan.name,
+                            chan.id,
                             category_id,
                             chan.kind.name()
                         ),
@@ -35,7 +36,10 @@ async fn all_channels(ctx: &Context, msg: &Message) -> CommandResult {
             } else {
                 // カテゴリ
                 msg.channel_id
-                    .say(&ctx.http, format!("{}", chan.name,))
+                    .say(
+                        &ctx.http,
+                        format!("category_name: {}\ncategory_id: {}", chan.name, chan.id),
+                    )
                     .await?;
             }
         }
