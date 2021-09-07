@@ -15,7 +15,7 @@ use serenity::prelude::{Client, Context, EventHandler};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
-use commands::neko::*;
+use commands::{channels::*, neko::*};
 
 // Handler構造体。取得したいイベントを実装する
 struct Handler;
@@ -50,7 +50,7 @@ async fn my_help(
 #[group]
 #[description("汎用コマンド")]
 #[summary("一般")]
-#[commands(neko)]
+#[commands(neko, all_channels)]
 struct General;
 
 #[derive(Serialize, Deserialize)]

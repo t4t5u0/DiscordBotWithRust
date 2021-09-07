@@ -1,9 +1,6 @@
+use serenity::framework::standard::{macros::command, CommandResult};
+use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::{
-    client::Context,
-    framework::standard::{macros::command, CommandResult},
-    model::channel::Message,
-};
 
 #[command]
 #[description = "猫のように鳴く"]
