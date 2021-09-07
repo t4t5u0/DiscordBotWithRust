@@ -17,9 +17,8 @@ async fn all_channels(ctx: &Context, msg: &Message) -> CommandResult {
     if let Some(guild_id) = msg.guild_id {
         let channels = ctx.http.get_channels(*guild_id.as_u64()).await?;
         for chan in channels {
+            let channel_name_with_sharp = Channel::Guild(chan.to_owned());
             if let Some(category_id) = chan.category_id {
-                // let category = category_id.
-                let channel_name_with_sharp = Channel::Guild(chan.to_owned());
                 msg.channel_id
                     .say(
                         &ctx.http,
@@ -34,11 +33,14 @@ async fn all_channels(ctx: &Context, msg: &Message) -> CommandResult {
                     )
                     .await?;
             } else {
-                // カテゴリ
+                // カテゴリとカテゴリ外チャンネルを見分けることができていない
                 msg.channel_id
                     .say(
                         &ctx.http,
-                        format!("category_name: {}\ncategory_id: {}", chan.name, chan.id),
+                        format!(
+                            "category_name: {}\ncategory_id: {}\n{}",
+                            chan.name, chan.id, channel_name_with_sharp
+                        ),
                     )
                     .await?;
             }
