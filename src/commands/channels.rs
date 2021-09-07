@@ -40,7 +40,6 @@ async fn all_channels(ctx: &Context, msg: &Message) -> CommandResult {
             }
         }
     } else {
-        // なんかバグってる
         msg.channel_id.say(&ctx.http, "ギルドではない").await?;
     }
     Ok(())
