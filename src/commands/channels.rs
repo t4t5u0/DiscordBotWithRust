@@ -23,13 +23,19 @@ async fn all_channels(ctx: &Context, msg: &Message) -> CommandResult {
             .iter()
             .map(|chan| MyChannel::new(chan.to_owned()))
             .collect::<Vec<MyChannel>>();
+        let channel_with_category = AllChannel::new(channels);
+        msg.channel_id
+            .say(&ctx.http, &channel_with_category.repl())
+            .await?;
     } else {
         msg.channel_id.say(&ctx.http, "ギルドではない").await?;
     }
     Ok(())
 }
 
+#[derive(Debug, Clone, PartialEq)]
 struct MyChannel {
+    is_category: bool,
     channel_name: String,
     channel_id: ChannelId,
     category_id: Option<ChannelId>,
@@ -50,6 +56,7 @@ impl MyChannel {
             channel_name_with_sharp
         };
         Self {
+            is_category,
             channel_name,
             channel_id,
             category_id,
@@ -57,6 +64,72 @@ impl MyChannel {
     }
 }
 
+#[derive(Debug)]
 struct AllChannel {
-    data: Vec<MyChannel>,
+    categories: Vec<MyChannel>,
+    inner_channels: Vec<MyChannel>,
+    outer_channels: Vec<MyChannel>,
+}
+
+impl AllChannel {
+    fn new(data: Vec<MyChannel>) -> Self {
+        // ほんとはpartition使いたかった
+        // カテゴリーを抽出
+        let categories = data
+            .to_owned()
+            .into_iter()
+            .filter(|x| x.is_category)
+            .collect::<Vec<MyChannel>>();
+        // data から categories を取り除く
+        let data = data
+            .to_owned()
+            .into_iter()
+            .filter(|x| !categories.contains(&x))
+            .collect::<Vec<MyChannel>>();
+        // カテゴリー内に存在するチャンネルを抽出
+        let inner_channels = data
+            .to_owned()
+            .into_iter()
+            .filter(|x| x.category_id != None)
+            .collect::<Vec<MyChannel>>();
+        // カテゴリー外に存在するチャンネルを抽出
+        let outer_channels = data
+            .to_owned()
+            .into_iter()
+            .filter(|x| !inner_channels.contains(&x))
+            .collect::<Vec<MyChannel>>();
+        Self {
+            categories,
+            inner_channels,
+            outer_channels,
+        }
+    }
+    fn repl(&self) -> String {
+        let mut result = String::new();
+        result.push_str(
+            &self
+                .outer_channels
+                .to_owned()
+                .into_iter()
+                .map(|x| x.channel_name)
+                .collect::<Vec<String>>()
+                .join("\n"),
+        );
+        for category in &self.categories {
+            result.push_str(&format!("{}\n", category.channel_name));
+            let mut matched_inner_channels = self
+                .inner_channels
+                .to_owned()
+                .into_iter()
+                .filter(|x| x.category_id.unwrap() == category.channel_id)
+                .collect::<Vec<MyChannel>>();
+            let last_item = &matched_inner_channels.remove(matched_inner_channels.len() - 1);
+            for inner in &matched_inner_channels {
+                result.push_str(&format!("├──{}\n", inner.channel_name));
+            }
+            result.push_str(&format!("└──{}\n", last_item.channel_name));
+            category.channel_id;
+        }
+        result
+    }
 }
