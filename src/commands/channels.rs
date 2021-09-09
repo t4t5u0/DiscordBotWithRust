@@ -74,30 +74,12 @@ struct AllChannel {
 impl AllChannel {
     fn new(data: Vec<MyChannel>) -> Self {
         // ほんとはpartition使いたかった
+        // 夜糸さんありがとうございます
         // カテゴリーを抽出
-        let categories = data
-            .to_owned()
-            .into_iter()
-            .filter(|x| x.is_category)
-            .collect::<Vec<MyChannel>>();
-        // data から categories を取り除く
-        let data = data
-            .to_owned()
-            .into_iter()
-            .filter(|x| !categories.contains(&x))
-            .collect::<Vec<MyChannel>>();
-        // カテゴリー内に存在するチャンネルを抽出
-        let inner_channels = data
-            .to_owned()
-            .into_iter()
-            .filter(|x| x.category_id != None)
-            .collect::<Vec<MyChannel>>();
-        // カテゴリー外に存在するチャンネルを抽出
-        let outer_channels = data
-            .to_owned()
-            .into_iter()
-            .filter(|x| !inner_channels.contains(&x))
-            .collect::<Vec<MyChannel>>();
+        let (categories, lesidual): (Vec<_>, Vec<_>) =
+            data.into_iter().partition(|x| x.is_category);
+        let (inner_channels, outer_channels): (Vec<_>, Vec<_>) =
+            lesidual.into_iter().partition(|x| x.category_id != None);
         Self {
             categories,
             inner_channels,
