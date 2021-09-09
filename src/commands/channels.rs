@@ -97,6 +97,7 @@ impl AllChannel {
                 .collect::<Vec<String>>()
                 .join("\n"),
         );
+        result.push_str("\n");
         for category in &self.categories {
             result.push_str(&format!("{}\n", category.channel_name));
             let mut matched_inner_channels = self
@@ -105,12 +106,13 @@ impl AllChannel {
                 .into_iter()
                 .filter(|x| x.category_id.unwrap() == category.channel_id)
                 .collect::<Vec<MyChannel>>();
-            let last_item = &matched_inner_channels.remove(matched_inner_channels.len() - 1);
-            for inner in &matched_inner_channels {
-                result.push_str(&format!("├──{}\n", inner.channel_name));
+            if matched_inner_channels.len() != 0 {
+                let last_item = &matched_inner_channels.remove(matched_inner_channels.len() - 1);
+                for inner in &matched_inner_channels {
+                    result.push_str(&format!("├──{}\n", inner.channel_name));
+                }
+                result.push_str(&format!("└──{}\n", last_item.channel_name));
             }
-            result.push_str(&format!("└──{}\n", last_item.channel_name));
-            category.channel_id;
         }
         result
     }
