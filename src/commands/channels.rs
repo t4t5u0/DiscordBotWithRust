@@ -73,8 +73,6 @@ struct AllChannel {
 
 impl AllChannel {
     fn new(data: Vec<MyChannel>) -> Self {
-        // ほんとはpartition使いたかった
-        // 夜糸さんありがとうございます
         // カテゴリーを抽出
         let (categories, lesidual): (Vec<_>, Vec<_>) =
             data.into_iter().partition(|x| x.is_category);
