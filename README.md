@@ -15,6 +15,6 @@ cargo run --release
 ## 開発者の人へ
 `git clone` したあとに、
 ```
-git update-index --assume unchanged config.json
+git update-index --assume-unchanged config.json
 ```
 すると、config.json の状態が固定されて、更新が無視されます。
