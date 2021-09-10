@@ -15,7 +15,7 @@ use serenity::prelude::{Client, Context, EventHandler};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 
-use commands::{channels::*, neko::*};
+use commands::{channels::*, kind_of_post::*, neko::*};
 
 // Handler構造体。取得したいイベントを実装する
 struct Handler;
@@ -53,6 +53,12 @@ async fn my_help(
 #[commands(neko, all_channels)]
 struct General;
 
+#[group]
+#[description("発言系コマンド")]
+#[summary("発言")]
+#[commands(say, reply, reply_m, mention, react)]
+struct Say;
+
 #[derive(Serialize, Deserialize)]
 struct Token {
     token: String,
@@ -76,7 +82,8 @@ async fn main() {
         // |c| c はラムダ式
         .configure(|c| c.prefix("~")) // コマンドプレフィックス
         .help(&MY_HELP) // ヘルプコマンドを追加
-        .group(&GENERAL_GROUP); // general を追加するには,GENERAL_GROUP とグループ名をすべて大文字にする
+        .group(&GENERAL_GROUP) // general を追加するには,GENERAL_GROUP とグループ名をすべて大文字にする
+        .group(&SAY_GROUP);
 
     // Botのクライアントを作成
     let mut client = Client::builder(&token)
