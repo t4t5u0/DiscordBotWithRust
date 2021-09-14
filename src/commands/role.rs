@@ -35,27 +35,29 @@ async fn create_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
             .say(&ctx.http, format!("引数が1つ必要です",))
             .await;
     }
-    let role_name = args
+    let role_names = args
         .iter::<String>()
         .map(|s| s.unwrap_or("".to_string()))
-        .collect::<Vec<_>>()
-        .join(" ");
+        .collect::<Vec<_>>();
+
     let guild_id = msg.guild_id.unwrap();
-    match guild_id.create_role(&ctx.http, |r| r.name(role_name)).await {
-        Ok(role) => {
-            &msg.channel_id
-                .say(&ctx.http, format!("{}", role.name))
-                .await;
+    for role_name in role_names {
+        match guild_id.create_role(&ctx.http, |r| r.name(role_name)).await {
+            Ok(role) => {
+                &msg.channel_id
+                    .say(&ctx.http, format!("{}", role.name))
+                    .await;
+            }
+            Err(error) => {
+                &msg.channel_id
+                    .say(
+                        &ctx.http,
+                        format! {"Error: {}\nロールを作成することができませんでした。", error},
+                    )
+                    .await;
+            }
         }
-        Err(error) => {
-            &msg.channel_id
-                .say(
-                    &ctx.http,
-                    format! {"Error: {}\nロールを作成することができませんでした。", error},
-                )
-                .await;
-        }
-    };
+    }
     Ok(())
 }
 
