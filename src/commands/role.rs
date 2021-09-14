@@ -4,6 +4,12 @@ use serenity::http::CacheHttp;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
+// TODO:
+// [ ] コマンドたちをroleのサブコマンドにする
+// [ ] roleの設定を変更するコマンド
+// [ ] role一覧を表示するコマンド
+// [ ] あるroleの詳しい情報を表示するコマンド
+
 #[command]
 #[description("role一覧")]
 async fn all_role(ctx: &Context, msg: &Message) -> CommandResult {
