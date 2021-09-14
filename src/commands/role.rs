@@ -59,8 +59,82 @@ async fn create_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
     Ok(())
 }
 
+#[command]
+#[description("role削除")]
+async fn delete_role(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    if args.is_empty() {
+        &msg.channel_id
+            .say(&ctx.http, format!("引数が1つ以上必要です",))
+            .await;
+        return Ok(());
+    }
+    // args -> Vec<String> -> Vec<u_64> -> Vec<RoleId ,Role>
+    // これすると、<@&[0-9]{16}> みたいな感じで入ってくる。桁数は適当
+
+    args.parse::<String>().unwrap();
+    let mut role_ids: Vec<u64> = vec![];
+    args.parse::<String>().unwrap();
+    while let Ok(role) = args.single::<String>() {
+        println!("{}", role);
+        if role.starts_with("<@&") && role.ends_with(">") {
+            let role_id = role
+                .strip_prefix("<@&")
+                .unwrap()
+                .strip_suffix(">")
+                .unwrap()
+                .parse::<u64>()
+                .unwrap();
+            role_ids.push(role_id);
+        }
+    }
+
+    let guild_id = msg.guild_id.unwrap();
+
+    // ここ適当なので再実装する
+    let roles = guild_id.roles(&ctx.http).await?;
+    let (want_to_delete, _not_exist_roles): (Vec<_>, Vec<_>) = roles
+        .into_iter()
+        .partition(|role| role_ids.contains(role.0.as_u64()));
+
+    for (id, r) in want_to_delete {
+        println!("{}", r.name);
+        guild_id.delete_role(&ctx.http, id).await?;
+        &msg.channel_id
+            .say(&ctx.http, format!("{} というロールを消去しました", r.name))
+            .await;
+    }
+
+    // for (_, r) in not_exist_roles {
+    //     &msg.channel_id
+    //         .say(&ctx.http, format!("{} というロールは存在しません", r.name))
+    //         .await;
+    // }
+    Ok(())
+}
+
+#[command]
+async fn args(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let mut a: Vec<u64> = vec![];
+    args.parse::<String>().unwrap();
+    while let Ok(role) = args.single::<String>() {
+        println!("{}", role);
+        if role.starts_with("<@&") && role.ends_with(">") {
+            let role_id = role
+                .strip_prefix("<@&")
+                .unwrap()
+                .strip_suffix(">")
+                .unwrap()
+                .parse::<u64>()
+                .unwrap();
+            a.push(role_id);
+        }
+    }
+    &msg.channel_id.say(&ctx.http, format!("{:?}", a)).await?;
+    Ok(())
+}
+
 #[group]
 #[description("ロール系")]
 #[summary("ロール")]
-#[commands(all_role, create_role)]
+#[commands(all_role, create_role, delete_role)]
 pub struct Role;
